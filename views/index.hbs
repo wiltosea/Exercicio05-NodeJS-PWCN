@@ -19,22 +19,45 @@
     </style>
 </head>
 <body>
-    <ul id="messages"></ul>
-    <br><br>
-    <form id="comment-form">
-        <label for="author">Autor:</label><br>
-        <input name="author" id="author" type="text"><br><br>
-        <label for="comment">Mensagem:</label><br>
-         <input name="comment" id="comment"><br><br>
-        <button type="button" onclick="enviarMensagem()" id="button-send">Enviar</button>
-        </form>
+  <ul id="messages"></ul>
+  <br><br>
+  <form id="comment-form">
+    <label for="author">Autor:</label><br>
+    <input name="author" id="author" type="text"><br><br>
+    <label for="comment">Mensagem:</label><br>
+    <input name="comment" id="comment"><br><br>
+    <button type="submit" id="button-send">Enviar</button>
+  </form>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        const socket = io();
-                    function enviarMensagem(){
-                console.log("teste")
-            }
-    </script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io("http://localhost:3000");
+
+    const messageForm = document.getElementById("comment-form");
+    const messagesList = document.getElementById("messages");
+
+    messageForm.onsubmit = function (event) {
+      event.preventDefault();
+      const author = document.getElementById("author").value;
+      const comment = document.getElementById("comment").value;
+      const data = { author, comment };
+      console.log(data);
+
+      renderMessage(data);
+
+      socket.emit("sendMessage", data);
+    };
+    const renderMessage = (message) => {
+      const element = document.createElement("li");
+      element.innerHTML = `<strong>${message.author}</strong>: ${message.comment}`;
+      messagesList.append(element);
+    };
+
+    socket.on('receiver', (conteudo)=>{
+      console.log(conteudo);
+      renderMessage(conteudo);
+    })
+
+  </script>
 </body>
 </html>
